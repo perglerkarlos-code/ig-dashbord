@@ -1,219 +1,133 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>@djveronicafox — AI Agent Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@djveronicafox — IG Dashboard</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0d0d0d;
-      --surface: #161616;
-      --surface2: #1e1e1e;
-      --border: #2a2a2a;
-      --accent: #a855f7;
-      --accent2: #7c3aed;
-      --accent-glow: rgba(168,85,247,0.18);
-      --text: #f0f0f0;
-      --muted: #888;
-      --green: #22c55e;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --orange: #f97316;
-      --pink: #ec4899;
+      --bg: #0d0d0d; --surface: #161616; --surface2: #1e1e1e;
+      --border: #2a2a2a; --accent: #ec4899; --accent2: #db2777;
+      --accent-glow: rgba(236,72,153,0.18);
+      --text: #f0f0f0; --muted: #888;
+      --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --orange: #f97316;
     }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      min-height: 100vh;
-    }
-
-    /* HEADER */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
     .header {
-      background: linear-gradient(135deg, #1a0a2e 0%, #0d0d0d 60%);
-      border-bottom: 1px solid var(--border);
-      padding: 24px 32px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
+      background: linear-gradient(135deg, #2a0a1e 0%, #0d0d0d 60%);
+      border-bottom: 1px solid var(--border); padding: 32px 40px; display: flex; align-items: center; gap: 24px;
     }
     .header-avatar {
-      width: 56px; height: 56px;
-      border-radius: 50%;
+      width: 80px; height: 80px; border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 800;
-      box-shadow: 0 0 20px var(--accent-glow);
+      font-size: 32px; font-weight: 700; color: #fff;
+      box-shadow: 0 0 30px var(--accent-glow); flex-shrink: 0;
     }
-    .header-info h1 {
-      font-size: 22px; font-weight: 700;
+    .header-info { flex: 1; }
+    .header-handle {
+      font-size: 28px; font-weight: 800;
       background: linear-gradient(135deg, #fff, var(--accent));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .header-info p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .header-name { color: var(--muted); font-size: 15px; margin-top: 4px; }
+    .header-meta { display: flex; align-items: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
     .header-badge {
-      margin-left: auto;
-      background: var(--accent-glow);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      padding: 6px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: 600;
+      background: var(--accent-glow); border: 1px solid var(--accent);
+      color: var(--accent); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
     }
-    .last-updated {
-      font-size: 11px; color: var(--muted); margin-left: 12px;
+    .header-updated { color: var(--muted); font-size: 12px; }
+    .header-refresh {
+      margin-left: auto; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); font-size: 12px; padding: 6px 14px; border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
     }
-
-    /* LAYOUT */
-    .container { padding: 28px 32px; max-width: 1400px; }
-
-    /* STATS ROW */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
+    .header-refresh:hover { border-color: var(--accent); color: var(--accent); }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px 40px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
     .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px 22px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 22px 20px; position: relative; overflow: hidden;
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 2px;
-    }
-    .stat-card.purple::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-    .stat-card.green::before  { background: linear-gradient(90deg, var(--green), #16a34a); }
-    .stat-card.blue::before   { background: linear-gradient(90deg, var(--blue), #1d4ed8); }
-    .stat-card.orange::before { background: linear-gradient(90deg, var(--orange), #ea580c); }
-    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
-    .stat-value { font-size: 32px; font-weight: 800; line-height: 1; }
-    .stat-value.purple { color: var(--accent); }
-    .stat-value.green  { color: var(--green); }
-    .stat-value.blue   { color: var(--blue); }
-    .stat-value.orange { color: var(--orange); }
-    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
-    .stat-icon {
-      position: absolute; right: 18px; top: 18px;
-      font-size: 28px; opacity: 0.15;
-    }
-
-    /* CHARTS ROW */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 28px;
-    }
-    .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
-    }
-    .chart-card h3 { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.8px; }
-    .chart-wrap { position: relative; height: 200px; }
-
-    /* AGENTS SECTION */
-    .section-title {
-      font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--muted); margin-bottom: 16px; font-weight: 600;
-    }
-    .agents-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 28px;
-    }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+    .stat-card.c1::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .stat-card.c2::before { background: linear-gradient(90deg, var(--blue), #6366f1); }
+    .stat-card.c3::before { background: linear-gradient(90deg, var(--green), #16a34a); }
+    .stat-card.c4::before { background: linear-gradient(90deg, var(--orange), #ea580c); }
+    .stat-icon { position:absolute; right:18px; top:18px; font-size:36px; opacity:0.12; user-select:none; }
+    .stat-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+    .stat-value { font-size:32px; font-weight:800; line-height:1; }
+    .stat-card.c1 .stat-value { color: var(--accent); }
+    .stat-card.c2 .stat-value { color: var(--blue); }
+    .stat-card.c3 .stat-value { color: var(--green); }
+    .stat-card.c4 .stat-value { color: var(--orange); }
+    .stat-sub { font-size:12px; color:var(--muted); margin-top:6px; }
+    .stat-change { font-size:12px; font-weight:600; margin-top:5px; }
+    .stat-change.up { color: var(--green); }
+    .stat-change.down { color: var(--red); }
+    .stat-change.flat { color: var(--muted); }
+    .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
+    .chart-title { font-size:14px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+    .chart-title span { color:var(--muted); font-weight:400; font-size:12px; }
+    .chart-hint { font-size:11px; color:var(--muted); margin-bottom:14px; }
+    .chart-wrap { position:relative; height:200px; }
+    .section-title { font-size:16px; font-weight:700; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+    .agents-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:28px; }
     .agent-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 14px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
+      background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .agent-card:hover {
-      border-color: var(--accent);
-      background: var(--surface2);
-      box-shadow: 0 0 20px var(--accent-glow);
-    }
-    .agent-icon { font-size: 28px; margin-bottom: 10px; }
-    .agent-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .agent-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
-    .agent-status {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 3px 10px;
-      border-radius: 10px;
-      font-size: 10px; font-weight: 600;
-    }
-    .agent-status.active { background: rgba(34,197,94,0.15); color: var(--green); }
-    .agent-status.idle   { background: rgba(136,136,136,0.1); color: var(--muted); }
-
-    /* TOP POSTS TABLE */
-    .posts-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
-      margin-bottom: 28px;
-    }
-    .posts-card h3 { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.8px; }
-    .posts-table { width: 100%; border-collapse: collapse; }
-    .posts-table th {
-      text-align: left; font-size: 10px; text-transform: uppercase;
-      letter-spacing: 0.8px; color: var(--muted);
-      padding: 0 12px 12px 12px; border-bottom: 1px solid var(--border);
-    }
-    .posts-table td {
-      padding: 12px; font-size: 13px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      vertical-align: middle;
-    }
-    .posts-table tr:last-child td { border-bottom: none; }
-    .posts-table tr:hover td { background: var(--surface2); }
-    .post-link { color: var(--accent); text-decoration: none; font-size: 11px; }
-    .post-link:hover { text-decoration: underline; }
-    .badge {
-      display: inline-block; padding: 2px 8px;
-      border-radius: 6px; font-size: 10px; font-weight: 600;
-    }
-    .badge-video { background: rgba(168,85,247,0.2); color: var(--accent); }
-    .badge-image { background: rgba(59,130,246,0.2); color: var(--blue); }
-    .views-bar {
-      display: flex; align-items: center; gap: 8px;
-    }
-    .bar-bg {
-      flex: 1; height: 6px; background: var(--border);
-      border-radius: 3px; overflow: hidden; max-width: 100px;
-    }
-    .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-    .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
-
-    /* FOOTER */
-    .footer { padding: 20px 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; display: flex; justify-content: space-between; }
-
-    @media (max-width: 1100px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .charts-row { grid-template-columns: 1fr; }
-      .agents-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 700px) {
-      .container { padding: 16px; }
-      .header { padding: 16px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .agents-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    .agent-card:hover { border-color:var(--accent); box-shadow:0 0 20px var(--accent-glow); }
+    .agent-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .agent-icon { font-size:22px; }
+    .agent-status { font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px; }
+    .agent-status.active { background:rgba(34,197,94,0.15); color:var(--green); }
+    .agent-name { font-size:13px; font-weight:700; margin-bottom:4px; }
+    .agent-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+    .posts-section { margin-bottom:28px; }
+    .posts-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--border); gap:12px; flex-wrap:wrap; }
+    .posts-header h2 { font-size:16px; font-weight:700; }
+    .posts-header-right { display:flex; align-items:center; gap:10px; }
+    .posts-count { font-size:12px; color:var(--muted); }
+    .btn-csv { background:var(--surface2); border:1px solid var(--border); color:var(--muted); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; transition:all 0.2s; }
+    .btn-csv:hover { border-color:var(--accent); color:var(--accent); }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead th { text-align:left; padding:10px 14px; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    tbody tr { border-bottom:1px solid rgba(42,42,42,0.6); transition:background 0.15s; }
+    tbody tr:hover { background:var(--accent-glow); }
+    tbody td { padding:10px 14px; vertical-align:middle; }
+    .td-thumb { width:44px; }
+    .td-thumb img { width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid var(--border); display:block; }
+    .td-thumb .thumb-fallback { width:40px; height:40px; background:var(--surface2); border-radius:6px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .td-code a { color:var(--accent); text-decoration:none; font-weight:600; font-size:12px; font-family:monospace; }
+    .td-code a:hover { text-decoration:underline; }
+    .type-badge { background:var(--accent-glow); border:1px solid var(--accent); color:var(--accent); font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+    .views-bar { min-width:130px; }
+    .views-bar > span { font-weight:700; font-size:13px; display:block; margin-bottom:5px; }
+    .bar-bg { background:rgba(42,42,56,0.8); border-radius:4px; height:5px; overflow:hidden; }
+    .bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width 0.6s ease; }
+    .td-velocity { color:var(--muted); font-size:12px; white-space:nowrap; }
+    .td-caption { max-width:220px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:var(--muted); font-size:12px; }
+    .td-date { color:var(--muted); font-size:12px; white-space:nowrap; }
+    .td-num { font-weight:600; }
+    .annotation-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--surface2); border:1px solid var(--accent); border-radius:12px; padding:24px; z-index:1000; min-width:320px; box-shadow:0 0 40px rgba(0,0,0,0.6); }
+    .annotation-popup h3 { font-size:14px; margin-bottom:12px; color:var(--accent); }
+    .annotation-popup input { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:8px; font-size:13px; margin-bottom:12px; outline:none; }
+    .annotation-popup input:focus { border-color:var(--accent); }
+    .annotation-popup-btns { display:flex; gap:8px; justify-content:flex-end; }
+    .annotation-popup-btns button { padding:6px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:none; }
+    .btn-save { background:var(--accent); color:#fff; }
+    .btn-cancel { background:var(--surface); color:var(--muted); border:1px solid var(--border) !important; }
+    .btn-delete { background:rgba(239,68,68,0.15); color:var(--red); border:1px solid var(--red) !important; }
+    .annotation-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; }
+    .footer { background:var(--surface); border-top:1px solid var(--border); padding:20px 40px; text-align:center; color:var(--muted); font-size:13px; }
+    .footer strong { color:var(--accent); }
+    @media(max-width:1100px){ .agents-grid{grid-template-columns:repeat(3,1fr);} .stats-grid{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:700px){ .header{padding:20px;flex-direction:column;text-align:center;} .container{padding:16px 12px;} .charts-row{grid-template-columns:1fr;} .agents-grid{grid-template-columns:1fr 1fr;} .stats-grid{grid-template-columns:1fr 1fr;} }
   </style>
 </head>
 <body>
@@ -221,304 +135,305 @@
 <div class="header">
   <div class="header-avatar">V</div>
   <div class="header-info">
-    <h1>@djveronicafox</h1>
-    <p>Instagram Content AI Agent System</p>
+    <div class="header-handle">@djveronicafox</div>
+    <div class="header-name" id="headerName">Načítání...</div>
+    <div class="header-meta">
+      <span class="header-badge">🟢 Aktivní</span>
+      <span class="header-updated" id="lastUpdated">—</span>
+    </div>
   </div>
-  <div class="header-badge">🟢 Aktivní</div>
-  <span class="last-updated" id="lastUpdated">—</span>
+  <button class="header-refresh" onclick="location.reload()">⟳ Obnovit</button>
 </div>
 
 <div class="container">
-
-  <!-- STATS -->
   <div class="stats-grid">
-    <div class="stat-card purple">
+    <div class="stat-card c1">
       <div class="stat-icon">👥</div>
       <div class="stat-label">Followers</div>
-      <div class="stat-value purple" id="stat-followers">—</div>
-      <div class="stat-sub" id="stat-followers-sub">posledních 30 dní</div>
+      <div class="stat-value" id="statFollowers">—</div>
+      <div class="stat-sub">celkem sledujících</div>
+      <div class="stat-change flat" id="statFollowersChange">—</div>
     </div>
-    <div class="stat-card blue">
-      <div class="stat-icon">👁</div>
-      <div class="stat-label">Celkové Views</div>
-      <div class="stat-value blue" id="stat-views">—</div>
-      <div class="stat-sub" id="stat-views-sub">ze všech reelů</div>
+    <div class="stat-card c2">
+      <div class="stat-icon">▶️</div>
+      <div class="stat-label">Celkové views</div>
+      <div class="stat-value" id="statViews">—</div>
+      <div class="stat-sub">přes všechny reely</div>
     </div>
-    <div class="stat-card green">
+    <div class="stat-card c3">
       <div class="stat-icon">❤️</div>
-      <div class="stat-label">Celkové Likes</div>
-      <div class="stat-value green" id="stat-likes">—</div>
-      <div class="stat-sub">ze všech postů</div>
+      <div class="stat-label">Celkové likes</div>
+      <div class="stat-value" id="statLikes">—</div>
+      <div class="stat-sub">přes všechny reely</div>
     </div>
-    <div class="stat-card orange">
+    <div class="stat-card c4">
       <div class="stat-icon">📊</div>
-      <div class="stat-label">Engagement Rate</div>
-      <div class="stat-value orange" id="stat-engagement">—</div>
-      <div class="stat-sub">likes+comments / views</div>
+      <div class="stat-label">Engagement</div>
+      <div class="stat-value" id="statEngagement">—</div>
+      <div class="stat-sub">likes / views průměr</div>
     </div>
   </div>
 
-  <!-- CHARTS -->
   <div class="charts-row">
     <div class="chart-card">
-      <h3>📈 Růst followers — posledních 30 dní</h3>
-      <div class="chart-wrap">
-        <canvas id="followersChart"></canvas>
-      </div>
+      <div class="chart-title">📈 Růst sledujících <span>posledních 30 dní</span></div>
+      <div class="chart-wrap"><canvas id="followersChart"></canvas></div>
     </div>
     <div class="chart-card">
-      <h3>👁 Views podle data — posledních 30 dní</h3>
-      <div class="chart-wrap">
-        <canvas id="viewsChart"></canvas>
-      </div>
+      <div class="chart-title">📅 Views podle dne <span>datum zveřejnění</span></div>
+      <div class="chart-hint">💡 Klikni na sloupeček pro přidání poznámky</div>
+      <div class="chart-wrap"><canvas id="viewsChart"></canvas></div>
     </div>
   </div>
 
-  <!-- AGENTS -->
+  <div class="charts-row" style="margin-bottom:28px">
+    <div class="chart-card">
+      <div class="chart-title">📆 Nejlepší den na post <span>průměrné views podle dne v týdnu</span></div>
+      <div class="chart-wrap"><canvas id="weekdayChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🕐 Nejlepší hodina na post <span>průměrné views podle hodiny</span></div>
+      <div class="chart-wrap"><canvas id="hourChart"></canvas></div>
+    </div>
+  </div>
+
   <div class="section-title">🤖 AI Agenti</div>
   <div class="agents-grid">
     <div class="agent-card">
-      <div class="agent-icon">💡</div>
-      <div class="agent-name">Ideator</div>
-      <div class="agent-desc">Generuje nápady na reely podle trendů a výkonu</div>
-      <span class="agent-status active">Aktivní</span>
+      <div class="agent-header"><span class="agent-icon">📡</span><span class="agent-status active">Aktivní</span></div>
+      <div class="agent-name">IG Scraper</div>
+      <div class="agent-desc">Stahuje reely a statistiky z Instagram API denně v 8:00</div>
     </div>
     <div class="agent-card">
-      <div class="agent-icon">✍️</div>
-      <div class="agent-name">Hook & Script Writer</div>
-      <div class="agent-desc">Píše hooky a skripty pro maximální retenci</div>
-      <span class="agent-status active">Aktivní</span>
+      <div class="agent-header"><span class="agent-icon">📊</span><span class="agent-status active">Aktivní</span></div>
+      <div class="agent-name">Analytics</div>
+      <div class="agent-desc">Vyhodnocuje výkon obsahu a sleduje trendy v čase</div>
     </div>
     <div class="agent-card">
-      <div class="agent-icon">📅</div>
-      <div class="agent-name">Planner</div>
-      <div class="agent-desc">Plánuje content kalendář a optimální časy publikace</div>
-      <span class="agent-status idle">Idle</span>
+      <div class="agent-header"><span class="agent-icon">📱</span><span class="agent-status active">Aktivní</span></div>
+      <div class="agent-name">Telegram Digest</div>
+      <div class="agent-desc">Posílá týdenní report každé pondělí v 9:00</div>
     </div>
     <div class="agent-card">
-      <div class="agent-icon">📊</div>
-      <div class="agent-name">Analyst</div>
-      <div class="agent-desc">Analyzuje výkon, trendy a doporučuje optimalizace</div>
-      <span class="agent-status active">Aktivní</span>
+      <div class="agent-header"><span class="agent-icon">🚨</span><span class="agent-status active">Aktivní</span></div>
+      <div class="agent-name">Viral Alert</div>
+      <div class="agent-desc">Notifikace když reel překročí 3× průměr views</div>
     </div>
     <div class="agent-card">
-      <div class="agent-icon">💬</div>
-      <div class="agent-name">DM Manager</div>
-      <div class="agent-desc">Spravuje DMs, odpovídá followerům a buduje komunitu</div>
-      <span class="agent-status idle">Idle</span>
+      <div class="agent-header"><span class="agent-icon">🏆</span><span class="agent-status active">Aktivní</span></div>
+      <div class="agent-name">Milníky</div>
+      <div class="agent-desc">Upozorní na dosažení follower milníků (100K, 250K...)</div>
     </div>
   </div>
 
-  <!-- TOP POSTS TABLE -->
-  <div class="posts-card">
-    <h3>🎬 Top Reely &amp; Posty</h3>
-    <div id="posts-container"></div>
+  <div class="posts-section">
+    <div class="posts-header">
+      <h2>🎬 Reely</h2>
+      <div class="posts-header-right">
+        <span class="posts-count" id="postsCount">—</span>
+        <button class="btn-csv" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>ShortCode</th><th>Typ</th><th>Views</th>
+            <th>Views/den</th><th>Likes</th><th>Komentáře</th><th>Caption</th><th>Datum</th>
+          </tr>
+        </thead>
+        <tbody id="postsTableBody">
+          <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:40px">Načítání...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>
 
 <div class="footer">
-  <span>@djveronicafox · AI Agent Dashboard</span>
-  <span id="footer-count">—</span>
+  <strong>@djveronicafox</strong> IG Content Agent Dashboard
+  &nbsp;·&nbsp; <span id="footerCount">—</span> reelů sledováno
+  &nbsp;·&nbsp; auto-refresh za <span id="refreshCountdown">60:00</span>
+</div>
+
+<div class="annotation-overlay" id="annotOverlay" style="display:none" onclick="closeAnnotation()"></div>
+<div class="annotation-popup" id="annotPopup" style="display:none">
+  <h3>📝 Poznámka pro <span id="annotDate"></span></h3>
+  <input type="text" id="annotInput" placeholder="Co se stalo tento den?" maxlength="120" />
+  <div class="annotation-popup-btns">
+    <button class="btn-delete" id="btnDelete" onclick="deleteAnnotation()" style="display:none">Smazat</button>
+    <button class="btn-cancel" onclick="closeAnnotation()">Zrušit</button>
+    <button class="btn-save" onclick="saveAnnotation()">Uložit</button>
+  </div>
 </div>
 
 <script>
-const FMT = n => {
-  if (n == null || isNaN(n)) return '—';
-  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-  return n.toLocaleString('cs-CZ');
-};
-const PCT = n => isNaN(n) ? '—' : n.toFixed(2) + '%';
-const DATESTR = s => {
-  const d = new Date(s);
-  return d.toLocaleDateString('cs-CZ', { day:'2-digit', month:'2-digit' });
-};
+const USERNAME = 'djveronicafox';
+const ANNOT_KEY = 'ig_annot_' + USERNAME;
+const CHART_RGB = '236,72,153';
+const BAR_RGB = '236,72,153';
+const BAR_BORDER_RGB = '219,39,119';
 
-async function loadJSON(path) {
-  try {
-    const r = await fetch(path + '?t=' + Date.now());
-    if (!r.ok) return null;
-    return await r.json();
-  } catch { return null; }
+let allPosts = [];
+let annotCurrentDate = null;
+let viewsChartInstance = null;
+let last30 = [];
+
+function fmt(n){ if(n==null||isNaN(n))return'0'; if(n>=1000000)return(n/1000000).toFixed(1)+'M'; if(n>=1000)return(n/1000).toFixed(1)+'K'; return n.toLocaleString('cs-CZ'); }
+function fmtDate(iso){ if(!iso)return'—'; return new Date(iso).toLocaleDateString('cs-CZ',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+function daysSince(iso){ return Math.max(0,Math.floor((new Date()-new Date(iso))/(1000*60*60*24))); }
+async function loadJSON(path){ try{const r=await fetch(path+'?t='+Date.now());if(!r.ok)return null;return await r.json();}catch{return null;} }
+function getAnnotations(){ try{return JSON.parse(localStorage.getItem(ANNOT_KEY)||'{}');}catch{return{};} }
+function saveAnnotations(obj){ localStorage.setItem(ANNOT_KEY,JSON.stringify(obj)); }
+
+function openAnnotation(date){
+  annotCurrentDate=date;
+  const annots=getAnnotations();
+  document.getElementById('annotDate').textContent=date;
+  document.getElementById('annotInput').value=annots[date]||'';
+  document.getElementById('btnDelete').style.display=annots[date]?'block':'none';
+  document.getElementById('annotOverlay').style.display='block';
+  document.getElementById('annotPopup').style.display='block';
+  setTimeout(()=>document.getElementById('annotInput').focus(),50);
+}
+function closeAnnotation(){ document.getElementById('annotOverlay').style.display='none'; document.getElementById('annotPopup').style.display='none'; annotCurrentDate=null; }
+function saveAnnotation(){ if(!annotCurrentDate)return; const val=document.getElementById('annotInput').value.trim(); const annots=getAnnotations(); if(val)annots[annotCurrentDate]=val; else delete annots[annotCurrentDate]; saveAnnotations(annots);closeAnnotation();redrawViewsChart(); }
+function deleteAnnotation(){ if(!annotCurrentDate)return; const annots=getAnnotations(); delete annots[annotCurrentDate]; saveAnnotations(annots);closeAnnotation();redrawViewsChart(); }
+document.getElementById('annotInput').addEventListener('keydown',e=>{ if(e.key==='Enter')saveAnnotation(); if(e.key==='Escape')closeAnnotation(); });
+
+function exportCSV(){
+  const rows=[['ShortCode','URL','Views','Likes','Komentáře','Views/den','Typ','Caption','Datum']];
+  allPosts.forEach(p=>{ const days=daysSince(p.timestamp); const velocity=days>0?(p.videoViewCount/days).toFixed(1):'—'; rows.push([p.shortCode||'',p.url||'',p.videoViewCount||0,p.likes||0,p.comments||0,velocity,p.type||'Reel','"'+(p.caption||'').replace(/"/g,'""')+'"',fmtDate(p.timestamp)]); });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${USERNAME}_reels_${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
 
-async function init() {
-  const [data, overrides, history] = await Promise.all([
-    loadJSON('data.json'),
-    loadJSON('ig-views-override.json'),
-    loadJSON('followers-history.json')
-  ]);
-
-  const posts = (data && data.myTopPosts) ? data.myTopPosts : [];
-  const viewsMap = (overrides && overrides.views) ? overrides.views : {};
-
-  // Apply view overrides
-  posts.forEach(p => {
-    if (viewsMap[p.shortCode] !== undefined) {
-      p.videoViewCount = viewsMap[p.shortCode];
-    }
+function redrawViewsChart(){
+  if(viewsChartInstance){viewsChartInstance.destroy();viewsChartInstance=null;}
+  const dayMap={};
+  allPosts.forEach(p=>{if(!p.timestamp)return;const day=p.timestamp.slice(0,10);dayMap[day]=(dayMap[day]||0)+(p.videoViewCount||0);});
+  const annots=getAnnotations();
+  const vColors=last30.map(d=>dayMap[d]?`rgba(${BAR_RGB},0.75)`:'rgba(42,42,56,0.8)');
+  const vBorders=last30.map(d=>dayMap[d]?`rgba(${BAR_BORDER_RGB},0.9)`:'rgba(60,60,80,0.6)');
+  last30.forEach((d,i)=>{if(annots[d]){vColors[i]=`rgba(${BAR_RGB},0.95)`;vBorders[i]='#fff';}});
+  viewsChartInstance=new Chart(document.getElementById('viewsChart'),{
+    type:'bar',
+    data:{labels:last30.map(d=>d.slice(5)),datasets:[{data:last30.map(d=>dayMap[d]||0),backgroundColor:vColors,borderColor:vBorders,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e1e1e',borderColor:'#2a2a2a',borderWidth:1,titleColor:'#888',bodyColor:'#f0f0f0',callbacks:{label:ctx=>{const lines=[' '+fmt(ctx.raw)+' views'];const date=last30[ctx.dataIndex];if(annots[date])lines.push(' 📝 '+annots[date]);return lines;}}}},
+      scales:{x:{ticks:{color:'#888',maxTicksLimit:8,font:{size:11}},grid:{display:false}},y:{ticks:{color:'#888',font:{size:11},callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.04)'}}},
+      onClick:(evt)=>{const pts=viewsChartInstance.getElementsAtEventForMode(evt,'nearest',{intersect:false},true);if(pts.length)openAnnotation(last30[pts[0].index]);}}
   });
-
-  // === STATS ===
-  const totalViews   = posts.reduce((s, p) => s + (p.videoViewCount || 0), 0);
-  const totalLikes   = posts.reduce((s, p) => s + (p.likes || 0), 0);
-  const totalComments= posts.reduce((s, p) => s + (p.comments || 0), 0);
-  const engagement   = totalViews > 0 ? ((totalLikes + totalComments) / totalViews * 100) : 0;
-
-  // Followers from history
-  const lastFollowers = history && history.length
-    ? history[history.length - 1].count
-    : 0;
-  const firstFollowers = history && history.length > 1
-    ? history[0].count
-    : 0;
-  const followerDelta = lastFollowers - firstFollowers;
-
-  document.getElementById('stat-followers').textContent = FMT(lastFollowers);
-  document.getElementById('stat-followers-sub').textContent = (followerDelta >= 0 ? '+' : '') + FMT(followerDelta) + ' za 30 dní';
-  document.getElementById('stat-views').textContent = FMT(totalViews);
-  document.getElementById('stat-likes').textContent = FMT(totalLikes);
-  document.getElementById('stat-engagement').textContent = PCT(engagement);
-  document.getElementById('lastUpdated').textContent = 'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
-  document.getElementById('footer-count').textContent = posts.length + ' postů celkem';
-
-  // === FOLLOWERS CHART ===
-  const hist30 = history ? history.slice(-30) : [];
-  new Chart(document.getElementById('followersChart'), {
-    type: 'line',
-    data: {
-      labels: hist30.map(h => DATESTR(h.date)),
-      datasets: [{
-        label: 'Followers',
-        data: hist30.map(h => h.count),
-        borderColor: '#a855f7',
-        backgroundColor: 'rgba(168,85,247,0.08)',
-        borderWidth: 2,
-        pointRadius: 2,
-        pointHoverRadius: 5,
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          ticks: { color: '#888', font: { size: 10 }, maxRotation: 45 },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        },
-        y: {
-          ticks: { color: '#888', font: { size: 10 },
-            callback: v => FMT(v) },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
-      }
-    }
-  });
-
-  // === VIEWS BY DAY CHART (last 30 days) ===
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 29);
-  const dayMap = {};
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(cutoff);
-    d.setDate(d.getDate() + i);
-    dayMap[d.toISOString().slice(0, 10)] = 0;
-  }
-  posts.forEach(p => {
-    const day = (p.timestamp || '').slice(0, 10);
-    if (dayMap[day] !== undefined) dayMap[day] += (p.videoViewCount || 0);
-  });
-  const dayLabels  = Object.keys(dayMap);
-  const dayValues  = Object.values(dayMap);
-  const maxViews   = Math.max(...dayValues, 1);
-
-  new Chart(document.getElementById('viewsChart'), {
-    type: 'bar',
-    data: {
-      labels: dayLabels.map(d => DATESTR(d)),
-      datasets: [{
-        label: 'Views',
-        data: dayValues,
-        backgroundColor: dayValues.map(v =>
-          v === 0 ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.7)'
-        ),
-        borderColor: dayValues.map(v =>
-          v === 0 ? 'rgba(168,85,247,0.2)' : 'rgba(168,85,247,1)'
-        ),
-        borderWidth: 1,
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          ticks: { color: '#888', font: { size: 10 }, maxRotation: 45 },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        },
-        y: {
-          ticks: { color: '#888', font: { size: 10 },
-            callback: v => FMT(v) },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
-      }
-    }
-  });
-
-  // === POSTS TABLE ===
-  const container = document.getElementById('posts-container');
-  if (!posts.length) {
-    container.innerHTML = '<div class="empty-state">Žádné posty — přidej je do data.json nebo spusť scrape.js</div>';
-    return;
-  }
-
-  const sorted = [...posts].sort((a, b) => (b.videoViewCount||0) - (a.videoViewCount||0));
-  const maxV = Math.max(...sorted.map(p => p.videoViewCount || 0), 1);
-
-  const rows = sorted.map(p => {
-    const pct = Math.round(((p.videoViewCount||0) / maxV) * 100);
-    const typeClass = p.type === 'Video' ? 'badge-video' : 'badge-image';
-    const dateStr = p.timestamp ? new Date(p.timestamp).toLocaleDateString('cs-CZ') : '—';
-    const caption = (p.caption || '').slice(0, 60) + ((p.caption||'').length > 60 ? '…' : '');
-    return `
-      <tr>
-        <td><a class="post-link" href="${p.url}" target="_blank">${p.shortCode}</a></td>
-        <td><span class="badge ${typeClass}">${p.type}</span></td>
-        <td>
-          <div class="views-bar">
-            <span>${FMT(p.videoViewCount)}</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
-          </div>
-        </td>
-        <td>${FMT(p.likes)}</td>
-        <td>${FMT(p.comments)}</td>
-        <td style="color:var(--muted);font-size:11px;">${caption}</td>
-        <td style="color:var(--muted);font-size:11px;">${dateStr}</td>
-      </tr>`;
-  }).join('');
-
-  container.innerHTML = `
-    <table class="posts-table">
-      <thead>
-        <tr>
-          <th>ShortCode</th>
-          <th>Typ</th>
-          <th>Views</th>
-          <th>Likes</th>
-          <th>Komentáře</th>
-          <th>Caption</th>
-          <th>Datum</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
 }
 
-init();
+(async()=>{
+  const [data,history]=await Promise.all([loadJSON('data.json'),loadJSON('followers-history.json')]);
+  if(!data){ document.getElementById('postsTableBody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--red);padding:40px">❌ Nelze načíst data.json</td></tr>'; return; }
+
+  allPosts=data.myTopPosts||[];
+
+  // djveronicafox: no myProfile — followers from history, username from first post
+  const lastHistory=history&&history.length?history[history.length-1]:null;
+  const followers=lastHistory?.count??0;
+  const username=allPosts[0]?.ownerUsername||'djveronicafox';
+  document.getElementById('headerName').textContent=username;
+
+  // lastUpdated from most recent post timestamp
+  const sortedPosts=[...allPosts].sort((a,b)=>new Date(b.timestamp||0)-new Date(a.timestamp||0));
+  const latestTs=sortedPosts[0]?.timestamp||'';
+  document.getElementById('lastUpdated').textContent=latestTs?'Poslední post: '+fmtDate(latestTs):'';
+
+  const totalViews=allPosts.reduce((s,p)=>s+(p.videoViewCount||0),0);
+  const totalLikes=allPosts.reduce((s,p)=>s+(p.likes||0),0);
+  const engPct=totalViews>0?((totalLikes/totalViews)*100).toFixed(2)+'%':'—';
+  document.getElementById('statFollowers').textContent=fmt(followers);
+  document.getElementById('statViews').textContent=fmt(totalViews);
+  document.getElementById('statLikes').textContent=fmt(totalLikes);
+  document.getElementById('statEngagement').textContent=engPct;
+  document.getElementById('postsCount').textContent=allPosts.length+' reelů';
+  document.getElementById('footerCount').textContent=allPosts.length;
+
+  // Weekly follower change — history uses {date, count}
+  if(history&&history.length>=2){
+    const last=history[history.length-1];
+    const weekAgo=history.find(h=>{const diff=(new Date(last.date)-new Date(h.date))/864e5;return diff>=6&&diff<=8;});
+    if(weekAgo){
+      const diff=last.count-weekAgo.count;
+      const el=document.getElementById('statFollowersChange');
+      if(diff>0){el.textContent=`↑ +${diff} tento týden`;el.className='stat-change up';}
+      else if(diff<0){el.textContent=`↓ ${diff} tento týden`;el.className='stat-change down';}
+      else{el.textContent='→ beze změny tento týden';el.className='stat-change flat';}
+    }
+  }
+
+  for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);last30.push(d.toISOString().slice(0,10));}
+
+  // Followers chart — history uses {date, count}
+  const histMap={};(history||[]).forEach(h=>{histMap[h.date]=h.count??0;});
+  let lastKnown=null;
+  const fData=last30.map(date=>{if(histMap[date]!==undefined)lastKnown=histMap[date];return lastKnown;});
+  new Chart(document.getElementById('followersChart'),{
+    type:'line',
+    data:{labels:last30.map(d=>d.slice(5)),datasets:[{data:fData,borderColor:`rgba(${CHART_RGB},0.9)`,backgroundColor:`rgba(${CHART_RGB},0.08)`,borderWidth:2,fill:true,tension:0.4,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:`rgba(${CHART_RGB},0.9)`}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e1e1e',borderColor:'#2a2a2a',borderWidth:1,titleColor:'#888',bodyColor:'#f0f0f0'}},
+      scales:{x:{ticks:{color:'#888',maxTicksLimit:6,font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#888',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+
+  redrawViewsChart();
+
+  const DAYS=['Ne','Po','Út','St','Čt','Pá','So'];
+  const dayViews={};const dayCounts={};
+  allPosts.forEach(p=>{if(!p.timestamp)return;const dow=new Date(p.timestamp).getDay();dayViews[dow]=(dayViews[dow]||0)+(p.videoViewCount||0);dayCounts[dow]=(dayCounts[dow]||0)+1;});
+  const dayAvg=DAYS.map((_,i)=>dayCounts[i]?Math.round(dayViews[i]/dayCounts[i]):0);
+  const maxDayAvg=Math.max(...dayAvg,1);
+  new Chart(document.getElementById('weekdayChart'),{type:'bar',
+    data:{labels:DAYS,datasets:[{data:dayAvg,backgroundColor:dayAvg.map(v=>v===maxDayAvg?`rgba(${BAR_RGB},0.9)`:`rgba(${BAR_RGB},0.3)`),borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e1e1e',borderColor:'#2a2a2a',borderWidth:1,titleColor:'#888',bodyColor:'#f0f0f0',callbacks:{label:ctx=>' '+fmt(ctx.raw)+' avg views'}}},
+      scales:{x:{ticks:{color:'#888',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#888',font:{size:11},callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+
+  const hourViews={};const hourCounts={};
+  allPosts.forEach(p=>{if(!p.timestamp)return;const h=new Date(p.timestamp).getHours();hourViews[h]=(hourViews[h]||0)+(p.videoViewCount||0);hourCounts[h]=(hourCounts[h]||0)+1;});
+  const hours=Array.from({length:24},(_,i)=>i);
+  const hourAvg=hours.map(i=>hourCounts[i]?Math.round(hourViews[i]/hourCounts[i]):0);
+  const maxHourAvg=Math.max(...hourAvg,1);
+  new Chart(document.getElementById('hourChart'),{type:'bar',
+    data:{labels:hours.map(h=>h+':00'),datasets:[{data:hourAvg,backgroundColor:hourAvg.map(v=>v===maxHourAvg?`rgba(${BAR_RGB},0.9)`:`rgba(${BAR_RGB},0.25)`),borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e1e1e',borderColor:'#2a2a2a',borderWidth:1,titleColor:'#888',bodyColor:'#f0f0f0',callbacks:{label:ctx=>' '+fmt(ctx.raw)+' avg views'}}},
+      scales:{x:{ticks:{color:'#888',maxTicksLimit:12,font:{size:10}},grid:{display:false}},y:{ticks:{color:'#888',font:{size:11},callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+
+  const maxViews=Math.max(...allPosts.map(p=>p.videoViewCount||0),1);
+  const tbody=document.getElementById('postsTableBody');
+  tbody.innerHTML='';
+  allPosts.forEach(p=>{
+    const v=p.videoViewCount||0;
+    const pct=Math.round((v/maxViews)*100);
+    const days=daysSince(p.timestamp);
+    const velocity=days>0?fmt(Math.round(v/days))+'/den':'dnes';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="td-thumb">
+        <img src="https://www.instagram.com/p/${p.shortCode}/media/?size=t" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" />
+        <div class="thumb-fallback" style="display:none">🎬</div>
+      </td>
+      <td class="td-code"><a href="${p.url||'#'}" target="_blank" rel="noopener">${p.shortCode||'—'}</a></td>
+      <td><span class="type-badge">${p.type||'Reel'}</span></td>
+      <td><div class="views-bar"><span>${fmt(v)}</span><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div></td>
+      <td class="td-velocity">${velocity}</td>
+      <td class="td-num">${fmt(p.likes||0)}</td>
+      <td class="td-num">${fmt(p.comments||0)}</td>
+      <td class="td-caption" title="${(p.caption||'').replace(/"/g,'&quot;')}">${p.caption||'—'}</td>
+      <td class="td-date">${fmtDate(p.timestamp)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  let secs=3600;const countEl=document.getElementById('refreshCountdown');
+  setInterval(()=>{secs--;if(secs<=0){location.reload();return;}const m=Math.floor(secs/60),s=secs%60;countEl.textContent=m+':'+(s<10?'0':'')+s;},1000);
+})();
 </script>
 </body>
 </html>
