@@ -161,10 +161,11 @@
       <div class="stat-sub">přes všechny reely</div>
     </div>
     <div class="stat-card c3">
-      <div class="stat-icon">❤️</div>
-      <div class="stat-label">Celkové likes</div>
-      <div class="stat-value" id="statLikes">—</div>
-      <div class="stat-sub">přes všechny reely</div>
+      <div class="stat-icon">📈</div>
+      <div class="stat-label">Growth Rate</div>
+      <div class="stat-value" id="statGrowth7d" style="font-size:26px">—</div>
+      <div class="stat-sub" id="statGrowth7dAbs">za 7 dní</div>
+      <div class="stat-change flat" id="statGrowth30d" style="margin-top:5px;font-size:11px">—</div>
     </div>
     <div class="stat-card c4">
       <div class="stat-icon">📊</div>
@@ -350,7 +351,6 @@ function redrawViewsChart(){
   const engPct=totalViews>0?((totalLikes/totalViews)*100).toFixed(2)+'%':'—';
   document.getElementById('statFollowers').textContent=fmt(followers);
   document.getElementById('statViews').textContent=fmt(totalViews);
-  document.getElementById('statLikes').textContent=fmt(totalLikes);
   document.getElementById('statEngagement').textContent=engPct;
   document.getElementById('postsCount').textContent=allPosts.length+' reelů';
   document.getElementById('footerCount').textContent=allPosts.length;
